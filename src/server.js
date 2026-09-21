@@ -2,6 +2,7 @@ const express = require('express');
 const { randomUUID } = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const { marked } = require('marked');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -103,19 +104,10 @@ const PAGE_STYLE = `
 
 // Página inicial: renderiza o README.md como HTML (lido a cada acesso, refletindo edições).
 app.get('/', (req, res) => {
-  fs.readFile(README_PATH, 'utf8', async (err, markdown) => {
+  fs.readFile(README_PATH, 'utf8', (err, markdown) => {
     if (err) {
       log(req, 'Erro ao ler o README.md', { erro: err.message });
       return res.status(500).type('text/plain; charset=utf-8').send('README.md não encontrado.');
-    }
-    // marked é ESM-only; import() dinâmico funciona em CommonJS em qualquer versão do Node.
-    let html;
-    try {
-      const { marked } = await import('marked');
-      html = marked.parse(markdown);
-    } catch (e) {
-      log(req, 'Erro ao renderizar o README.md', { erro: e.message });
-      return res.status(500).type('text/plain; charset=utf-8').send('Erro ao renderizar o README.md.');
     }
     res.type('text/html; charset=utf-8').send(`<!DOCTYPE html>
 <html lang="pt-BR">
@@ -126,7 +118,7 @@ app.get('/', (req, res) => {
 <style>${PAGE_STYLE}</style>
 </head>
 <body>
-${html}
+${marked.parse(markdown)}
 </body>
 </html>`);
   });
