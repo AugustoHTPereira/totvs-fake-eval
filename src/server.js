@@ -224,6 +224,11 @@ app.use((err, req, res, next) => {
   res.status(500).json(errorBody('Erro interno do servidor.'));
 });
 
-app.listen(PORT, () => {
-  console.log(`API de assinatura fake rodando em http://localhost:${PORT}`);
-});
+// Na Vercel o app é exportado e servido como função serverless; localmente sobe o servidor.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`API de assinatura fake rodando em http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;
