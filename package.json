@@ -1,0 +1,15 @@
+{
+  "name": "totvs-fake-eval",
+  "version": "1.0.0",
+  "description": "API fake de assinatura digital para ambiente de desenvolvimento",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
