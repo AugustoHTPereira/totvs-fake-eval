@@ -10,6 +10,7 @@
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "marked": "^18.0.13"
   }
 }

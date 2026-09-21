@@ -1,5 +1,8 @@
 const express = require('express');
 const { randomUUID } = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const { marked } = require('marked');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -80,6 +83,46 @@ function decodePin(pin) {
   if (typeof pin !== 'string' || pin === '') return '';
   return Buffer.from(pin, 'base64').toString('utf8');
 }
+
+const README_PATH = path.join(__dirname, '..', 'README.md');
+
+const PAGE_STYLE = `
+  :root { color-scheme: light dark; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; line-height: 1.6;
+         max-width: 880px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1, h2, h3, h4 { line-height: 1.25; }
+  h1, h2 { border-bottom: 1px solid #8884; padding-bottom: .3em; }
+  code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .9em;
+         background: #8882; padding: .15em .4em; border-radius: 4px; }
+  pre { background: #8882; padding: 14px 16px; border-radius: 8px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  blockquote { margin: 1em 0; padding: .2em 1em; border-left: 4px solid #d9822b; background: #d9822b1a; }
+  table { border-collapse: collapse; display: block; overflow-x: auto; }
+  th, td { border: 1px solid #8884; padding: 6px 12px; text-align: left; }
+  th { background: #8882; }
+`;
+
+// Página inicial: renderiza o README.md como HTML (lido a cada acesso, refletindo edições).
+app.get('/', (req, res) => {
+  fs.readFile(README_PATH, 'utf8', (err, markdown) => {
+    if (err) {
+      log(req, 'Erro ao ler o README.md', { erro: err.message });
+      return res.status(500).type('text/plain; charset=utf-8').send('README.md não encontrado.');
+    }
+    res.type('text/html; charset=utf-8').send(`<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>totvs-fake-eval</title>
+<style>${PAGE_STYLE}</style>
+</head>
+<body>
+${marked.parse(markdown)}
+</body>
+</html>`);
+  });
+});
 
 app.post('/sign', (req, res) => {
   const queryPin = req.query.pin;
